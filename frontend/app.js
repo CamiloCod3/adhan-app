@@ -15,20 +15,21 @@ document.addEventListener("DOMContentLoaded", () => {
         return today;
     }
 
+    // Base URL for DigitalOcean Spaces
+    const SPACES_BASE_URL = 'https://adhan-data.nyc3.cdn.digitaloceanspaces.com';
+
+
+
     // Fetch prayer times from DigitalOcean Spaces
     async function fetchPrayerTimes(city) {
         const today = new Date().toLocaleDateString("en-GB").replace(/\//g, "-");
-    
-        // Environment variable for the base URL
-        const baseUrl = process.env.SPACES_BASE_URL
-    
-        const response = await fetch(`${baseUrl}/prayer_times_${today}.json`);
-    
+        const response = await fetch(`${SPACES_BASE_URL}/prayer_times_${today}.json`);
+
         if (!response.ok) throw new Error("Failed to fetch prayer times");
-    
+
         const data = await response.json();
         prayerData = data.data[city];
-    
+
         displayPrayerTimes(prayerData, city);
         startCitySpecificCountdown(prayerData);
     }
