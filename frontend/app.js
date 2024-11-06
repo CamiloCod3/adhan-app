@@ -118,23 +118,27 @@ document.addEventListener("DOMContentLoaded", () => {
         displayDate();
     }
 
-    // Displays both Gregorian and Hijri dates
-    function displayDate() {
+    // Function to display the Hijri and Gregorian dates
+    function displayDate(hijriAdjustment = 0) {
         const today = new Date();
+
         const gregorianDate = today.toLocaleDateString("sv-SE", { day: 'numeric', month: 'long', year: 'numeric' });
-        updateHijriDate();
-        dateDiv.innerHTML = `<p>Datum: ${gregorianDate}</p><p>Hijri: ${currentHijriDate}</p>`;
+        
+        // Calculate Hijri date with adjustment for Maghrib
+        const hijriDateObj = new Intl.DateTimeFormat("ar-SA-u-ca-islamic", {
+            day: 'numeric', month: 'long', year: 'numeric', numberingSystem: 'latn'
+        }).formatToParts(today);
+
+        let hijriDay = parseInt(hijriDateObj.find(part => part.type === "day").value) + hijriAdjustment;
+        let hijriMonth = hijriDateObj.find(part => part.type === "month").value;
+        let hijriYear = hijriDateObj.find(part => part.type === "year").value;
+
+        // Update the display with the adjusted date
+        dateDiv.innerHTML = `<p>Datum: ${gregorianDate}</p><p>Hijri: ${hijriDay} ${hijriMonth} ${hijriYear} هـ</p>`;
     }
 
-    // Updates only the Hijri date after Maghrib prayer
-    let currentHijriDate = ""; // Holds the current Hijri date to avoid re-queries
-    function updateHijriDate() {
-        currentHijriDate = new Intl.DateTimeFormat("ar-SA-u-ca-islamic", { 
-            day: 'numeric', 
-            month: 'long', 
-            year: 'numeric', 
-            numberingSystem: 'latn' 
-        }).format(new Date());
+    function updateHijriDateAfterMaghrib() {
+        displayDate(1); // Increment Hijri date by 1 for new day after Maghrib
     }
 
     // Updates the background color based on the current prayer time period
@@ -168,9 +172,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Start countdown for the next prayer time
     function startCitySpecificCountdown(timings) {
-        clearInterval(countdownInterval); // Clear existing countdown
+        clearInterval(countdownInterval);
 
-        // Function to determine the next prayer time based on current time
         function getNextPrayerTime() {
             const now = new Date();
             const prayerTimes = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
@@ -186,12 +189,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
 
-            // If no next prayer time is found, set Fajr of the next day as the next prayer
             if (!nextPrayerTime) {
                 const fajrTime = parseTimeToToday(timings["Fajr"]);
                 fajrTime.setDate(fajrTime.getDate() + 1);
                 nextPrayerName = "Fajr (Nästa Dag)";
                 nextPrayerTime = fajrTime;
+            }
+
+            // Trigger Hijri date update if Maghrib has passed
+            if (now >= parseTimeToToday(timings["Maghrib"])) {
+                updateHijriDateAfterMaghrib();
             }
 
             return { nextPrayerName, nextPrayerTime };
