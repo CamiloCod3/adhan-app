@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let countdownInterval;
     let prayerData;
 
+    
     // Function to format time to today’s date for countdown calculations
     function parseTimeToToday(timeStr) {
         const [hours, minutes] = timeStr.split(":").map(Number);
@@ -153,6 +154,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         updateCountdown();
     }
+
+    citySelect.value = "Göteborg";
 
     const defaultCity = "Göteborg";
     fetchPrayerTimes(defaultCity);
