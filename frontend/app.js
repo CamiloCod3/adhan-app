@@ -46,20 +46,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Fetches prayer times from the JSON file in the DigitalOcean Space for the specified city
     async function fetchPrayerTimes(city) {
-        const todayFormatted = getFormattedDate();
+        const todayFormatted = getFormattedDate(); // Format date for filename
 
         try {
-            // Fetch data from DigitalOcean Spaces
+            // Fetch data from DigitalOcean Spaces with specific headers
             const response = await fetch(`${SPACES_BASE_URL}/prayer_times_${todayFormatted}.json`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Cache-Control': 'no-store' // Prevent caching to get the latest data
+                    'Cache-Control': 'no-store',  // Ensure fresh fetch without caching
+                    'Access-Control-Allow-Origin': 'https://www.adhan.se'
                 }
             });
 
-            // Handle unsuccessful response
-            if (!response.ok) throw new Error("Failed to fetch prayer times");
+            // Handle unsuccessful response and specifically handle CORS issues
+            if (response.status === 403) {
+                throw new Error("CORS Error: Access to fetch prayer times is restricted.");
+            } else if (!response.ok) {
+                throw new Error(`Failed to fetch prayer times: ${response.statusText}`);
+            }
 
             // Extract prayer data and update UI
             const data = await response.json();
