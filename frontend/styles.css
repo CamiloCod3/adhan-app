@@ -20,51 +20,63 @@ body {
 }
 
 /* Background Gradient Classes */
-.bg-fajr { /* Pre-Sunrise (Fajr) */
-    background: linear-gradient(to bottom, #ffdfba, #87ceeb);
-}
-
-.bg-dhuhr { /* Noon (Dhuhr) */
-    background: linear-gradient(to bottom, #87cefa, #bde0fe);
-}
-
-.bg-asr { /* Afternoon (Asr) */
-    background: linear-gradient(to bottom, #ffdd99, #ffbb33);
-}
-
-.bg-maghrib { /* Sunset (Maghrib) */
-    background: linear-gradient(to bottom, #ff8c00, #2a2a72);
-}
-
-.bg-isha { /* Nighttime (Isha) */
-    background: linear-gradient(to bottom, #0d1b2a, #1e3c72);
-}
+.bg-fajr { background: linear-gradient(to bottom, #ffdfba, #87ceeb); }
+.bg-dhuhr { background: linear-gradient(to bottom, #87cefa, #bde0fe); }
+.bg-asr { background: linear-gradient(to bottom, #ffdd99, #ffbb33); }
+.bg-maghrib { background: linear-gradient(to bottom, #ff8c00, #2a2a72); }
+.bg-isha { background: linear-gradient(to bottom, #0d1b2a, #1e3c72); }
 
 /* Main Container */
 .container {
     width: 90%;
     max-width: 600px;
-    background: rgba(255, 250, 235, 0.9);
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+    background: rgba(255, 250, 235, 0.95);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
     text-align: center;
     z-index: 2;
+    backdrop-filter: blur(5px);
+    transition: transform 0.3s ease-in-out;
 }
 
+/* Animations */
+.container:hover {
+    transform: scale(1.02);
+}
+
+.prayer-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    background-color: #fdf6e4;
+    border: 2px solid #bda27e;
+    border-radius: 10px;
+    box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.05);
+    animation: fadeIn 1s ease forwards;
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
 
 /* Header styling */
 h1 {
-    font-size: 30px;
+    font-size: 32px;
     color: #8b4513;
-    margin-bottom: 15px;
+    font-weight: bold;
+    margin-bottom: 20px;
 }
 
 /* Date styling */
 #date {
-    font-size: 16px;
+    font-size: 18px;
     color: #5e3c2a;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    font-style: italic;
 }
 
 /* City Selector */
@@ -74,108 +86,66 @@ label {
 }
 
 #city-select {
-    padding: 8px;
-    font-size: 14px;
+    padding: 10px;
+    font-size: 16px;
     margin-top: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     border-radius: 5px;
     border: 1px solid #8b4513;
     background-color: #f3e7d4;
     color: #4a2f1b;
 }
 
-/* Prayer Times Display */
-#prayer-times {
-    text-align: left;
-    font-size: 22px;
-    margin-bottom: 25px;
-}
-
-#prayer-times ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-/* Individual Prayer Bar */
-.prayer-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 15px;
-    margin-bottom: 10px;
-    background-color: #f3e7d4;
-    border: 2px solid #bda27e;
-    border-radius: 8px;
-    box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.1);
-}
-
 /* Prayer Text */
 .prayer-name {
     font-weight: bold;
     color: #4a2f1b;
-    font-size: 18px;
+    font-size: 20px;
+    font-family: 'Georgia', serif;
 }
 
+/* Enhanced styling for prayer times */
 .prayer-time {
     font-family: 'Courier New', Courier, monospace;
-    font-size: 24px;
-    color: #b22222;
-    letter-spacing: 2px;
+    font-size: 28px;            /* Slightly larger font */
+    color: #8b0000;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+    margin-left: 10px;
 }
 
 /* Countdown */
 #countdown {
-    font-size: 22px;
+    font-size: 24px;
     color: #b22222;
-    margin-top: 20px;
+    margin-top: 25px;
     font-weight: bold;
+    padding: 8px;
+    border-radius: 8px;
+    background-color: #fdf6e4;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out;
+}
+
+#countdown:hover {
+    transform: scale(1.05);
 }
 
 /* Responsive Styling */
 @media (max-width: 768px) {
-    .container {
-        padding: 20px;
-    }
-
-    h1 {
-        font-size: 24px;
-    }
-
-    #prayer-times {
-        font-size: 18px;
-    }
-
-    .prayer-name {
-        font-size: 16px;
-    }
-
-    .prayer-time {
-        font-size: 20px;
-    }
-
-    #countdown {
-        font-size: 18px;
-    }
+    .container { padding: 20px; }
+    h1 { font-size: 26px; }
+    #prayer-times { font-size: 18px; }
+    .prayer-name { font-size: 16px; }
+    .prayer-time { font-size: 24px; }
+    #countdown { font-size: 20px; }
 }
 
 @media (max-width: 480px) {
-    h1 {
-        font-size: 20px;
-    }
-
-    #prayer-times {
-        font-size: 16px;
-    }
-
-    .prayer-name {
-        font-size: 14px;
-    }
-
-    .prayer-time {
-        font-size: 18px;
-    }
-
-    #countdown {
-        font-size: 16px;
-    }
+    h1 { font-size: 22px; }
+    #prayer-times { font-size: 16px; }
+    .prayer-name { font-size: 14px; }
+    .prayer-time { font-size: 20px; }
+    #countdown { font-size: 18px; }
 }
