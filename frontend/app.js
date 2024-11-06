@@ -30,14 +30,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // List of prayer names in English, Swedish, and Arabic for display purposes
-    const prayerNames = [
-        { english: "Fajr", swedish: "Fajr", arabic: "الفجر" },
-        { english: "Shuruk", swedish: "Shuruk 🌅", arabic: "شروق الشمس" }, // Added sunrise emoji
-        { english: "Dhuhr", swedish: "Dhuhr", arabic: "الظهر" },
-        { english: "Asr", swedish: "Asr", arabic: "العصر" },
-        { english: "Maghrib", swedish: "Maghrib", arabic: "المغرب" },
-        { english: "Isha", swedish: "Isha", arabic: "العشاء" }
-    ];
+const prayerNames = [
+    { english: "Fajr", swedish: "Fajr", arabic: "الفجر" },
+    { english: "Shuruk", swedish: "Shuruk 🌞", arabic: "شروق الشمس" }, // Subtle sun emoji
+    { english: "Dhuhr", swedish: "Dhuhr", arabic: "الظهر" },
+    { english: "Asr", swedish: "Asr", arabic: "العصر" },
+    { english: "Maghrib", swedish: "Maghrib", arabic: "المغرب" },
+    { english: "Isha", swedish: "Isha", arabic: "العشاء" }
+];
 
     // Function to update header based on selected city
     function updateHeader(city) {
