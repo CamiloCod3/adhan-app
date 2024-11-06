@@ -18,12 +18,19 @@ document.addEventListener("DOMContentLoaded", () => {
     // Base URL for DigitalOcean Spaces
     const SPACES_BASE_URL = 'https://adhan-data.nyc3.cdn.digitaloceanspaces.com';
 
-
+    // Helper function to format date as "DD-MM-YYYY"
+    function getFormattedDate() {
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const year = today.getFullYear();
+        return `${day}-${month}-${year}`;
+    }
 
     // Fetch prayer times from DigitalOcean Spaces
     async function fetchPrayerTimes(city) {
-        const today = new Date().toLocaleDateString("en-GB").replace(/\//g, "-");
-        const response = await fetch(`${SPACES_BASE_URL}/prayer_times_${today}.json`);
+        const todayFormatted = getFormattedDate();
+        const response = await fetch(`${SPACES_BASE_URL}/prayer_times_${todayFormatted}.json`);
 
         if (!response.ok) throw new Error("Failed to fetch prayer times");
 
@@ -147,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
         updateCountdown();
     }
 
-    const defaultCity = "Stockholm";
+    const defaultCity = "Göteborg";
     fetchPrayerTimes(defaultCity);
 
     citySelect.addEventListener("change", () => {
