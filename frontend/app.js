@@ -87,8 +87,22 @@ document.addEventListener("DOMContentLoaded", () => {
     // Displays the current date in both Gregorian (Swedish) and Hijri formats
     function displayDate() {
         const today = new Date();
-        const gregorianDate = today.toLocaleDateString("sv-SE", { day: 'numeric', month: 'long', year: 'numeric' });
-        const hijriDate = new Intl.DateTimeFormat("en-TN-u-ca-islamic", { day: 'numeric', month: 'long', year: 'numeric' }).format(today);
+
+        // Format Gregorian date in Swedish locale
+        const gregorianDate = today.toLocaleDateString("sv-SE", { 
+            day: 'numeric', 
+            month: 'long', 
+            year: 'numeric' 
+        });
+
+        // Format Hijri date, ensuring it doesn't default to "May" or "BC"
+        const hijriDate = new Intl.DateTimeFormat("ar-SA-u-ca-islamic", { 
+            day: 'numeric', 
+            month: 'long', 
+            year: 'numeric', 
+            numberingSystem: 'latn'  // Use Latin numerals for consistency
+        }).format(today);
+
         dateDiv.innerHTML = `<p>Datum: ${gregorianDate}</p><p>Hijri: ${hijriDate}</p>`;
     }
 
