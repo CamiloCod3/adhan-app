@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let countdownInterval;
     let prayerData; // Holds prayer times data for the selected city
+    let lastUpdateDate = null; // Tracks the last fetched date to detect changes
 
     // Helper function to parse a time string (e.g., "04:58") into a Date object for today
     function parseTimeToToday(timeStr) {
@@ -20,30 +21,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // Base URL for accessing the DigitalOcean Spaces storage
     const SPACES_BASE_URL = 'https://adhan-data.nyc3.cdn.digitaloceanspaces.com';
 
-    // Get today's date formatted as "DD-MM-YYYY" for use in fetching the daily JSON file
-    function getFormattedDate() {
-        const today = new Date();
-        const day = String(today.getDate()).padStart(2, '0');
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const year = today.getFullYear();
-        return `${day}-${month}-${year}`;
-    }
-
-    // List of prayer names in English, Swedish, and Arabic for display purposes
-    const prayerNames = [
-        { english: "Fajr", swedish: "Fajr", arabic: "الفجر" },
-        { english: "Sunrise", swedish: "Shuruk ☀️", arabic: "شروق الشمس" }, // Mapping "Sunrise" to "Shuruk" with an emoji
-        { english: "Dhuhr", swedish: "Dhuhr", arabic: "الظهر" },
-        { english: "Asr", swedish: "Asr", arabic: "العصر" },
-        { english: "Maghrib", swedish: "Maghrib", arabic: "المغرب" },
-        { english: "Isha", swedish: "Isha", arabic: "العشاء" }
-    ];
-
-    // Function to update header based on selected city
-    function updateHeader(city) {
-        header.textContent = `Bönetider: ${city}`;
-    }
-
     // Fetches prayer times from the JSON file in the DigitalOcean Space for the specified city
     async function fetchPrayerTimes(city) {
         try {
@@ -53,21 +30,67 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!response.ok) throw new Error(`Failed to fetch prayer times: ${response.statusText}`);
     
             const data = await response.json();
-            prayerData = data.data[city];
-            updateHeader(city);
-            displayPrayerTimes(prayerData, city);
-            startCitySpecificCountdown(prayerData);
+            const currentDate = data.date; // Extract date from the JSON file
+
+            // If data date is different from the last fetched date, update prayer times
+            if (currentDate !== lastUpdateDate) {
+                lastUpdateDate = currentDate;
+                prayerData = data.data[city];
+                updateHeader(city);
+                displayPrayerTimes(prayerData, city);
+                startCitySpecificCountdown(prayerData);
+            }
         } catch (error) {
             console.error("Error fetching prayer times:", error);
             prayerTimesDiv.innerHTML = `<p style="color:red;">Failed to load prayer times. Please try again later.</p>`;
         }
     }
-    
+
+    // Function to update header based on selected city
+    function updateHeader(city) {
+        header.textContent = `Bönetider: ${city}`;
+    }
+
+    // Polling function that limits checks to 3 times with a 15-minute interval after 12:16 AM
+    function startLimitedPolling() {
+        const maxAttempts = 3; // Maximum number of polling attempts
+        const pollingInterval = 15 * 60 * 1000; // 15 minutes in milliseconds
+        let attempts = 0; // Counter for polling attempts
+
+        // Set up interval for polling
+        const pollInterval = setInterval(() => {
+            if (attempts >= maxAttempts) {
+                clearInterval(pollInterval); // Stop polling after max attempts
+                return;
+            }
+            fetchPrayerTimes(citySelect.value); // Fetch updated prayer times if available
+            attempts += 1;
+        }, pollingInterval);
+    }
+
+    // Schedules polling to start at 12:16 AM each day
+    function startPollingAfterMidnight() {
+        const now = new Date();
+        const targetTime = new Date(now);
+        targetTime.setHours(0, 16, 0, 0); // Set target to 12:16 AM
+
+        // If the current time is past 12:16 AM, schedule for the next day
+        if (now > targetTime) {
+            targetTime.setDate(targetTime.getDate() + 1);
+        }
+
+        const timeUntilTarget = targetTime - now;
+
+        // Set a timeout to start limited polling at 12:16 AM
+        setTimeout(() => {
+            startLimitedPolling(); // Begin the limited polling process after 12:16 AM
+        }, timeUntilTarget);
+    }
+
     // Display prayer times for the selected city
     function displayPrayerTimes(timings, city) {
         prayerTimesDiv.innerHTML = "<ul>";
         prayerNames.forEach(prayer => {
-            // Use the English name to get the correct timing from `timings`
             const time = timings[prayer.english];
             const prayerBar = document.createElement("div");
             prayerBar.className = "prayer-bar";
@@ -85,27 +108,15 @@ document.addEventListener("DOMContentLoaded", () => {
             prayerTimesDiv.appendChild(prayerBar);
         });
         prayerTimesDiv.innerHTML += "</ul>";
-        displayDate(); // Display the current date in Swedish and Hijri formats
+        displayDate();
     }
 
     // Displays the current date in both Gregorian (Swedish) and Hijri formats
     function displayDate() {
         const today = new Date();
 
-        // Format Gregorian date in Swedish locale
-        const gregorianDate = today.toLocaleDateString("sv-SE", { 
-            day: 'numeric', 
-            month: 'long', 
-            year: 'numeric' 
-        });
-
-        // Format Hijri date, ensuring it doesn't default to "May" or "BC"
-        const hijriDate = new Intl.DateTimeFormat("ar-SA-u-ca-islamic", { 
-            day: 'numeric', 
-            month: 'long', 
-            year: 'numeric', 
-            numberingSystem: 'latn'  // Use Latin numerals for consistency
-        }).format(today);
+        const gregorianDate = today.toLocaleDateString("sv-SE", { day: 'numeric', month: 'long', year: 'numeric' });
+        const hijriDate = new Intl.DateTimeFormat("ar-SA-u-ca-islamic", { day: 'numeric', month: 'long', year: 'numeric', numberingSystem: 'latn' }).format(today);
 
         dateDiv.innerHTML = `<p>Datum: ${gregorianDate}</p><p>Hijri: ${hijriDate}</p>`;
     }
@@ -139,38 +150,10 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.style.background = background;
     }
 
-    // Initiates countdown to the next prayer time and updates the background dynamically
+    // Start countdown for the next prayer time
     function startCitySpecificCountdown(timings) {
-        clearInterval(countdownInterval); // Clear any existing countdown intervals
+        clearInterval(countdownInterval); // Clear existing countdown
 
-        // Determine the next prayer time based on current time
-        function getNextPrayerTime() {
-            const now = new Date();
-            const prayerTimes = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
-            let nextPrayerName = null;
-            let nextPrayerTime = null;
-
-            for (const prayer of prayerTimes) {
-                const prayerTime = parseTimeToToday(timings[prayer]);
-                if (prayerTime > now) {
-                    nextPrayerName = prayer;
-                    nextPrayerTime = prayerTime;
-                    break;
-                }
-            }
-
-            // If no next prayer time is found, set Fajr of the next day as the next prayer
-            if (!nextPrayerTime) {
-                const fajrTime = parseTimeToToday(timings["Fajr"]);
-                fajrTime.setDate(fajrTime.getDate() + 1);
-                nextPrayerName = "Fajr (Nästa Dag)";
-                nextPrayerTime = fajrTime;
-            }
-
-            return { nextPrayerName, nextPrayerTime };
-        }
-
-        // Updates the countdown timer every second
         function updateCountdown() {
             const { nextPrayerName, nextPrayerTime } = getNextPrayerTime();
             updateBackground(timings, new Date()); // Update background based on prayer period
@@ -179,7 +162,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 const now = new Date();
                 const timeRemaining = nextPrayerTime - now;
 
-                // If the prayer time is reached, fetch the prayer times again to reset the countdown
                 if (timeRemaining <= 0) {
                     clearInterval(countdownInterval);
                     fetchPrayerTimes(citySelect.value);
@@ -207,4 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
         updateHeader(selectedCity);
         fetchPrayerTimes(selectedCity);
     });
+
+    // Start the limited polling process after midnight
+    startPollingAfterMidnight(); // Schedule polling to start after 12:16 AM
 });
