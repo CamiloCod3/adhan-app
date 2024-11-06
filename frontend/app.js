@@ -118,14 +118,23 @@ document.addEventListener("DOMContentLoaded", () => {
         displayDate();
     }
 
-    // Displays the current date in both Gregorian (Swedish) and Hijri formats
+    // Displays both Gregorian and Hijri dates
     function displayDate() {
         const today = new Date();
-
         const gregorianDate = today.toLocaleDateString("sv-SE", { day: 'numeric', month: 'long', year: 'numeric' });
-        const hijriDate = new Intl.DateTimeFormat("ar-SA-u-ca-islamic", { day: 'numeric', month: 'long', year: 'numeric', numberingSystem: 'latn' }).format(today);
+        updateHijriDate();
+        dateDiv.innerHTML = `<p>Datum: ${gregorianDate}</p><p>Hijri: ${currentHijriDate}</p>`;
+    }
 
-        dateDiv.innerHTML = `<p>Datum: ${gregorianDate}</p><p>Hijri: ${hijriDate}</p>`;
+    // Updates only the Hijri date after Maghrib prayer
+    let currentHijriDate = ""; // Holds the current Hijri date to avoid re-queries
+    function updateHijriDate() {
+        currentHijriDate = new Intl.DateTimeFormat("ar-SA-u-ca-islamic", { 
+            day: 'numeric', 
+            month: 'long', 
+            year: 'numeric', 
+            numberingSystem: 'latn' 
+        }).format(new Date());
     }
 
     // Updates the background color based on the current prayer time period
