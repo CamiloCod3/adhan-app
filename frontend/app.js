@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let countdownInterval;
     let prayerData; // Holds prayer times data for the selected city
 
-    // Helper function to parse a time string (e.g., "04:58") into a Date object for today
+    // Helper function to parse a time string
     function parseTimeToToday(timeStr) {
         const [hours, minutes] = timeStr.split(":").map(Number);
         const today = new Date();
@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // List of prayer names in English, Swedish, and Arabic for display purposes
     const prayerNames = [
         { english: "Fajr", swedish: "Fajr", arabic: "الفجر" },
-        { english: "Sunrise", swedish: "Soluppgång", arabic: "شروق الشمس" },
+        { english: "Shuruk", swedish: "Shuruk 🌅", arabic: "شروق الشمس" }, // Added sunrise emoji
         { english: "Dhuhr", swedish: "Dhuhr", arabic: "الظهر" },
         { english: "Asr", swedish: "Asr", arabic: "العصر" },
         { english: "Maghrib", swedish: "Maghrib", arabic: "المغرب" },
