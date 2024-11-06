@@ -30,14 +30,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // List of prayer names in English, Swedish, and Arabic for display purposes
-const prayerNames = [
-    { english: "Fajr", swedish: "Fajr", arabic: "الفجر" },
-    { english: "Shuruk", swedish: "Shuruk 🌞", arabic: "شروق الشمس" }, // Subtle sun emoji
-    { english: "Dhuhr", swedish: "Dhuhr", arabic: "الظهر" },
-    { english: "Asr", swedish: "Asr", arabic: "العصر" },
-    { english: "Maghrib", swedish: "Maghrib", arabic: "المغرب" },
-    { english: "Isha", swedish: "Isha", arabic: "العشاء" }
-];
+    const prayerNames = [
+        { english: "Fajr", swedish: "Fajr", arabic: "الفجر" },
+        { english: "Sunrise", swedish: "Shuruk ☀️", arabic: "شروق الشمس" }, // Mapping "Sunrise" to "Shuruk"
+        { english: "Dhuhr", swedish: "Dhuhr", arabic: "الظهر" },
+        { english: "Asr", swedish: "Asr", arabic: "العصر" },
+        { english: "Maghrib", swedish: "Maghrib", arabic: "المغرب" },
+        { english: "Isha", swedish: "Isha", arabic: "العشاء" }
+    ];
 
     // Function to update header based on selected city
     function updateHeader(city) {
@@ -60,17 +60,18 @@ const prayerNames = [
         startCitySpecificCountdown(prayerData); // Start countdown for next prayer
     }
 
-    // Displays prayer times in Swedish and Arabic, formatted for the selected city
+    // Display prayer times for the selected city
     function displayPrayerTimes(timings, city) {
         prayerTimesDiv.innerHTML = "<ul>";
         prayerNames.forEach(prayer => {
+            // Use the English name to get the correct timing from `timings`
             const time = timings[prayer.english];
             const prayerBar = document.createElement("div");
             prayerBar.className = "prayer-bar";
 
             const prayerName = document.createElement("span");
             prayerName.className = "prayer-name";
-            prayerName.innerHTML = `${prayer.swedish} (${prayer.arabic})`; // Display Swedish and Arabic
+            prayerName.innerHTML = `${prayer.swedish} (${prayer.arabic})`;
 
             const prayerTime = document.createElement("span");
             prayerTime.className = "prayer-time";
