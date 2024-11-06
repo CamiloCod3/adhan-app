@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let countdownInterval;
     let prayerData; // Holds prayer times data for the selected city
 
-    // Helper function to parse a time string
+    // Helper function to parse a time string (e.g., "04:58") into a Date object for today
     function parseTimeToToday(timeStr) {
         const [hours, minutes] = timeStr.split(":").map(Number);
         const today = new Date();
@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // List of prayer names in English, Swedish, and Arabic for display purposes
     const prayerNames = [
         { english: "Fajr", swedish: "Fajr", arabic: "الفجر" },
-        { english: "Sunrise", swedish: "Shuruk ☀️", arabic: "شروق الشمس" }, // Mapping "Sunrise" to "Shuruk"
+        { english: "Sunrise", swedish: "Shuruk ☀️", arabic: "شروق الشمس" }, // Mapping "Sunrise" to "Shuruk" with an emoji
         { english: "Dhuhr", swedish: "Dhuhr", arabic: "الظهر" },
         { english: "Asr", swedish: "Asr", arabic: "العصر" },
         { english: "Maghrib", swedish: "Maghrib", arabic: "المغرب" },
@@ -47,17 +47,31 @@ document.addEventListener("DOMContentLoaded", () => {
     // Fetches prayer times from the JSON file in the DigitalOcean Space for the specified city
     async function fetchPrayerTimes(city) {
         const todayFormatted = getFormattedDate();
-        const response = await fetch(`${SPACES_BASE_URL}/prayer_times_${todayFormatted}.json`);
 
-        // Handle failure to fetch data
-        if (!response.ok) throw new Error("Failed to fetch prayer times");
+        try {
+            // Fetch data from DigitalOcean Spaces
+            const response = await fetch(`${SPACES_BASE_URL}/prayer_times_${todayFormatted}.json`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Cache-Control': 'no-store' // Prevent caching to get the latest data
+                }
+            });
 
-        // Extract prayer data for the city and display it
-        const data = await response.json();
-        prayerData = data.data[city];
-        updateHeader(city); // Update header with the selected city
-        displayPrayerTimes(prayerData, city);
-        startCitySpecificCountdown(prayerData); // Start countdown for next prayer
+            // Handle unsuccessful response
+            if (!response.ok) throw new Error("Failed to fetch prayer times");
+
+            // Extract prayer data and update UI
+            const data = await response.json();
+            prayerData = data.data[city];
+            updateHeader(city); // Update header with the selected city
+            displayPrayerTimes(prayerData, city); // Display fetched prayer times
+            startCitySpecificCountdown(prayerData); // Start countdown for the next prayer
+        } catch (error) {
+            console.error("Error fetching prayer times:", error);
+            // Display error message in UI if fetching fails
+            prayerTimesDiv.innerHTML = `<p style="color:red;">Failed to load prayer times. Please try again later.</p>`;
+        }
     }
 
     // Display prayer times for the selected city
@@ -71,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const prayerName = document.createElement("span");
             prayerName.className = "prayer-name";
-            prayerName.innerHTML = `${prayer.swedish} (${prayer.arabic})`;
+            prayerName.innerHTML = `${prayer.swedish} (${prayer.arabic})`; // Display both Swedish and Arabic names
 
             const prayerTime = document.createElement("span");
             prayerTime.className = "prayer-time";
@@ -189,7 +203,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }, 1000);
         }
 
-        updateCountdown(); // Start the countdown
+        updateCountdown();
     }
 
     // Set default city to Göteborg on load
@@ -201,7 +215,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Update prayer times and header when the selected city changes
     citySelect.addEventListener("change", () => {
         const selectedCity = citySelect.value;
-        updateHeader(selectedCity); // Update header to selected city
+        updateHeader(selectedCity);
         fetchPrayerTimes(selectedCity);
     });
 });
