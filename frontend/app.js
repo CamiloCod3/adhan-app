@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let countdownInterval;
     let prayerData;
 
-    
     // Function to format time to today’s date for countdown calculations
     function parseTimeToToday(timeStr) {
         const [hours, minutes] = timeStr.split(":").map(Number);
@@ -28,12 +27,22 @@ document.addEventListener("DOMContentLoaded", () => {
         return `${day}-${month}-${year}`;
     }
 
+    // Mapping of prayer names in Swedish and Arabic
+    const prayerNames = [
+        { english: "Fajr", swedish: "Fajr", arabic: "الفجر" },
+        { english: "Sunrise", swedish: "Soluppgång", arabic: "شروق الشمس" },
+        { english: "Dhuhr", swedish: "Dhuhr", arabic: "الظهر" },
+        { english: "Asr", swedish: "Asr", arabic: "العصر" },
+        { english: "Maghrib", swedish: "Maghrib", arabic: "المغرب" },
+        { english: "Isha", swedish: "Isha", arabic: "العشاء" }
+    ];
+
     // Fetch prayer times from DigitalOcean Spaces
     async function fetchPrayerTimes(city) {
         const todayFormatted = getFormattedDate();
-        const response = await fetch(`${SPACES_BASE_URL}/prayer_times_${todayFormatted}.json`);
+        const response = await fetch(`${SPACES_BASE_URL}/prayer_times.json`);
 
-        if (!response.ok) throw new Error("Failed to fetch prayer times");
+        if (!response.ok) throw new Error("Kunde inte hämta böntider");
 
         const data = await response.json();
         prayerData = data.data[city];
@@ -42,22 +51,21 @@ document.addEventListener("DOMContentLoaded", () => {
         startCitySpecificCountdown(prayerData);
     }
 
-    // Display prayer times for the selected city
+    // Display prayer times for the selected city in both Swedish and Arabic
     function displayPrayerTimes(timings, city) {
-        prayerTimesDiv.innerHTML = `<h2>Prayer Times for ${city}</h2><ul>`;
-        const prayerNames = ["Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"];
+        prayerTimesDiv.innerHTML = `<h2>Bönetider för ${city}</h2><ul>`;
         prayerNames.forEach(prayer => {
-            const time = timings[prayer];
+            const time = timings[prayer.english];
             const prayerBar = document.createElement("div");
             prayerBar.className = "prayer-bar";
 
             const prayerName = document.createElement("span");
             prayerName.className = "prayer-name";
-            prayerName.textContent = prayer;
+            prayerName.innerHTML = `${prayer.swedish} (${prayer.arabic})`; // Display Swedish and Arabic
 
             const prayerTime = document.createElement("span");
             prayerTime.className = "prayer-time";
-            prayerTime.textContent = time;
+            prayerTime.innerHTML = `${time} (${convertToArabicNumbers(time)})`; // Western and Arabic time
 
             prayerBar.appendChild(prayerName);
             prayerBar.appendChild(prayerTime);
@@ -67,40 +75,18 @@ document.addEventListener("DOMContentLoaded", () => {
         displayDate();
     }
 
-    // Display the current date in both Gregorian and Hijri formats
+    // Display the current date in both Gregorian and Hijri formats in Swedish
     function displayDate() {
         const today = new Date();
-        const gregorianDate = today.toLocaleDateString("en-GB", { day: 'numeric', month: 'long', year: 'numeric' });
+        const gregorianDate = today.toLocaleDateString("sv-SE", { day: 'numeric', month: 'long', year: 'numeric' });
         const hijriDate = new Intl.DateTimeFormat("en-TN-u-ca-islamic", { day: 'numeric', month: 'long', year: 'numeric' }).format(today);
-        dateDiv.innerHTML = `<p>Gregorian Date: ${gregorianDate}</p><p>Hijri Date: ${hijriDate}</p>`;
+        dateDiv.innerHTML = `<p>Gregoriansk Dato: ${gregorianDate}</p><p>Hijri Dato: ${hijriDate}</p>`;
     }
 
-    // Update the background based on the current prayer time period
-    function updateBackground(timings, currentTime) {
-        const fajrTime = parseTimeToToday(timings.Fajr);
-        const sunriseTime = parseTimeToToday(timings.Sunrise);
-        const dhuhrTime = parseTimeToToday(timings.Dhuhr);
-        const asrTime = parseTimeToToday(timings.Asr);
-        const maghribTime = parseTimeToToday(timings.Maghrib);
-        const ishaTime = parseTimeToToday(timings.Isha);
-
-        let background;
-
-        if (currentTime >= fajrTime && currentTime < sunriseTime) {
-            background = "linear-gradient(to bottom, #ffdfba, #ffab73)";
-        } else if (currentTime >= sunriseTime && currentTime < dhuhrTime) {
-            background = "linear-gradient(to bottom, #87ceeb, #ffcccb)";
-        } else if (currentTime >= dhuhrTime && currentTime < asrTime) {
-            background = "linear-gradient(to bottom, #b0e0e6, #fffacd)";
-        } else if (currentTime >= asrTime && currentTime < maghribTime) {
-            background = "linear-gradient(to bottom, #ffa500, #ffcccb)";
-        } else if (currentTime >= maghribTime && currentTime < ishaTime) {
-            background = "linear-gradient(to bottom, #ff4500, #2a2a72)";
-        } else {
-            background = "linear-gradient(to bottom, #0d1b2a, #1e3c72)";
-        }
-
-        document.body.style.background = background;
+    // Convert Western numerals to Arabic
+    function convertToArabicNumbers(number) {
+        const westernToArabic = { "0": "٠", "1": "١", "2": "٢", "3": "٣", "4": "٤", "5": "٥", "6": "٦", "7": "٧", "8": "٨", "9": "٩" };
+        return number.replace(/\d/g, digit => westernToArabic[digit]);
     }
 
     // Start countdown to the next prayer time
@@ -125,7 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!nextPrayerTime) {
                 const fajrTime = parseTimeToToday(timings["Fajr"]);
                 fajrTime.setDate(fajrTime.getDate() + 1);
-                nextPrayerName = "Fajr (Next Day)";
+                nextPrayerName = "Fajr (Nästa Dag)";
                 nextPrayerTime = fajrTime;
             }
 
@@ -147,7 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     const hours = Math.floor((timeRemaining / (1000 * 60 * 60)) % 24);
                     const minutes = Math.floor((timeRemaining / (1000 * 60)) % 60);
                     const seconds = Math.floor((timeRemaining / 1000) % 60);
-                    countdownDiv.innerHTML = `<p>Next Prayer: ${nextPrayerName} in ${hours}h ${minutes}m ${seconds}s</p>`;
+                    countdownDiv.innerHTML = `<p>Nästa Bön: ${nextPrayerName} om ${hours}t ${minutes}m ${seconds}s</p>`;
                 }
             }, 1000);
         }
@@ -156,7 +142,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     citySelect.value = "Göteborg";
-
     const defaultCity = "Göteborg";
     fetchPrayerTimes(defaultCity);
 
