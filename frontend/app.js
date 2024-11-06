@@ -49,13 +49,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const todayFormatted = getFormattedDate();
     
         try {
-            const response = await fetch(`${SPACES_BASE_URL}/prayer_times_${todayFormatted}.json`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Cache-Control': 'no-store'
-                }
-            });
+            // Fetch data from DigitalOcean Spaces without unnecessary headers
+            const response = await fetch(`${SPACES_BASE_URL}/prayer_times_${todayFormatted}.json`);
     
             if (!response.ok) throw new Error(`Failed to fetch prayer times: ${response.statusText}`);
     
@@ -69,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
             prayerTimesDiv.innerHTML = `<p style="color:red;">Failed to load prayer times. Please try again later.</p>`;
         }
     }
-
+    
     // Display prayer times for the selected city
     function displayPrayerTimes(timings, city) {
         prayerTimesDiv.innerHTML = "<ul>";
