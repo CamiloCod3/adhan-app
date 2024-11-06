@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const today = new Date();
         const gregorianDate = today.toLocaleDateString("sv-SE", { day: 'numeric', month: 'long', year: 'numeric' });
         const hijriDate = new Intl.DateTimeFormat("en-TN-u-ca-islamic", { day: 'numeric', month: 'long', year: 'numeric' }).format(today);
-        dateDiv.innerHTML = `<p>Gregoriansk Dato: ${gregorianDate}</p><p>Hijri Dato: ${hijriDate}</p>`;
+        dateDiv.innerHTML = `<p>Datum: ${gregorianDate}</p><p>Hijri: ${hijriDate}</p>`;
     }
 
     // Updates the background color based on the current prayer time period
