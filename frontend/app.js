@@ -46,11 +46,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Fetches prayer times from the JSON file in the DigitalOcean Space for the specified city
     async function fetchPrayerTimes(city) {
-        const todayFormatted = getFormattedDate();
-    
         try {
-            // Fetch data from DigitalOcean Spaces without unnecessary headers
-            const response = await fetch(`${SPACES_BASE_URL}/prayer_times_${todayFormatted}.json`);
+            // Fetch data from a consistent filename in DigitalOcean Spaces
+            const response = await fetch(`${SPACES_BASE_URL}/prayer_times.json?timestamp=${Date.now()}`);
     
             if (!response.ok) throw new Error(`Failed to fetch prayer times: ${response.statusText}`);
     
