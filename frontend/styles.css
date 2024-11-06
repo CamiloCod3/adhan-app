@@ -16,7 +16,7 @@ body {
     background-size: cover;
     position: relative;
     overflow: hidden;
-    transition: background 2s ease; /* Smooth transition between sky colors */
+    transition: background 2s ease;
 }
 
 /* Background Gradient Classes */
@@ -31,11 +31,13 @@ body {
     width: 90%;
     max-width: 600px;
     background: rgba(255, 250, 235, 0.95);
-    padding: 30px;
+    padding: 35px 25px;
     border-radius: 15px;
-    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
     text-align: center;
     z-index: 2;
+    border: 1px solid #e0c3a1; /* Slight border for clearer boundaries */
+    margin: 20px; /* Space around container */
 }
 
 /* Header styling */
@@ -71,7 +73,32 @@ label {
     color: #4a2f1b;
 }
 
-/* Prayer Text */
+/* Prayer Times Display */
+#prayer-times {
+    text-align: left;
+    font-size: 22px;
+    margin-bottom: 25px;
+}
+
+#prayer-times ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+/* Individual Prayer Bar */
+.prayer-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 18px;
+    margin-bottom: 12px;
+    background-color: #f3e7d4;
+    border: 2px solid #bda27e;
+    border-radius: 8px;
+    box-shadow: inset 0px 0px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Prayer Name */
 .prayer-name {
     font-weight: bold;
     color: #4a2f1b;
@@ -79,14 +106,14 @@ label {
     font-family: 'Georgia', serif;
 }
 
-/* Enhanced styling for prayer times to resemble a digital clock */
+/* Digital Clock Style for Prayer Times */
 .prayer-time {
-    font-family: 'Courier New', monospace;  /* Digital clock style */
-    font-size: 26px;                        /* Consistent font size */
-    color: #8b0000;                         /* Dark red for easy visibility */
+    font-family: 'Courier New', monospace;
+    font-size: 26px;
+    color: #8b0000;
     letter-spacing: 1px;
     font-weight: bold;
-    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3); /* Subtle shadow for clarity */
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
     margin-left: 10px;
 }
 
@@ -108,7 +135,7 @@ label {
     h1 { font-size: 26px; }
     #prayer-times { font-size: 18px; }
     .prayer-name { font-size: 16px; }
-    .prayer-time { font-size: 24px; }   /* Digital clock style remains same */
+    .prayer-time { font-size: 24px; }
     #countdown { font-size: 20px; }
 }
 
@@ -116,6 +143,6 @@ label {
     h1 { font-size: 22px; }
     #prayer-times { font-size: 16px; }
     .prayer-name { font-size: 14px; }
-    .prayer-time { font-size: 22px; }   /* Consistent digital style for mobile */
+    .prayer-time { font-size: 22px; }
     #countdown { font-size: 18px; }
 }
