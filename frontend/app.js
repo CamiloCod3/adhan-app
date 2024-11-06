@@ -46,35 +46,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Fetches prayer times from the JSON file in the DigitalOcean Space for the specified city
     async function fetchPrayerTimes(city) {
-        const todayFormatted = getFormattedDate(); // Format date for filename
-
+        const todayFormatted = getFormattedDate();
+    
         try {
-            // Fetch data from DigitalOcean Spaces with specific headers
             const response = await fetch(`${SPACES_BASE_URL}/prayer_times_${todayFormatted}.json`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Cache-Control': 'no-store',  // Ensure fresh fetch without caching
-                    'Access-Control-Allow-Origin': 'https://www.adhan.se'
+                    'Cache-Control': 'no-store'
                 }
             });
-
-            // Handle unsuccessful response and specifically handle CORS issues
-            if (response.status === 403) {
-                throw new Error("CORS Error: Access to fetch prayer times is restricted.");
-            } else if (!response.ok) {
-                throw new Error(`Failed to fetch prayer times: ${response.statusText}`);
-            }
-
-            // Extract prayer data and update UI
+    
+            if (!response.ok) throw new Error(`Failed to fetch prayer times: ${response.statusText}`);
+    
             const data = await response.json();
             prayerData = data.data[city];
-            updateHeader(city); // Update header with the selected city
-            displayPrayerTimes(prayerData, city); // Display fetched prayer times
-            startCitySpecificCountdown(prayerData); // Start countdown for the next prayer
+            updateHeader(city);
+            displayPrayerTimes(prayerData, city);
+            startCitySpecificCountdown(prayerData);
         } catch (error) {
             console.error("Error fetching prayer times:", error);
-            // Display error message in UI if fetching fails
             prayerTimesDiv.innerHTML = `<p style="color:red;">Failed to load prayer times. Please try again later.</p>`;
         }
     }
