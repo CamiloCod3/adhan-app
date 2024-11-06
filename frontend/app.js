@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-
     // List of prayer names in English, Swedish, and Arabic for display purposes
     const prayerNames = [
         { english: "Fajr", swedish: "Fajr", arabic: "الفجر" },
@@ -162,6 +161,34 @@ document.addEventListener("DOMContentLoaded", () => {
     function startCitySpecificCountdown(timings) {
         clearInterval(countdownInterval); // Clear existing countdown
 
+        // Function to determine the next prayer time based on current time
+        function getNextPrayerTime() {
+            const now = new Date();
+            const prayerTimes = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
+            let nextPrayerName = null;
+            let nextPrayerTime = null;
+
+            for (const prayer of prayerTimes) {
+                const prayerTime = parseTimeToToday(timings[prayer]);
+                if (prayerTime > now) {
+                    nextPrayerName = prayer;
+                    nextPrayerTime = prayerTime;
+                    break;
+                }
+            }
+
+            // If no next prayer time is found, set Fajr of the next day as the next prayer
+            if (!nextPrayerTime) {
+                const fajrTime = parseTimeToToday(timings["Fajr"]);
+                fajrTime.setDate(fajrTime.getDate() + 1);
+                nextPrayerName = "Fajr (Nästa Dag)";
+                nextPrayerTime = fajrTime;
+            }
+
+            return { nextPrayerName, nextPrayerTime };
+        }
+
+        // Function to update the countdown timer every second
         function updateCountdown() {
             const { nextPrayerName, nextPrayerTime } = getNextPrayerTime();
             updateBackground(timings, new Date()); // Update background based on prayer period
