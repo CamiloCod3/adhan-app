@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const prayerTimesDiv = document.getElementById("prayer-times");
     const countdownDiv = document.getElementById("countdown");
     const dateDiv = document.getElementById("date");
+    const header = document.querySelector("h1"); // Select the header element for dynamic updates
 
     let countdownInterval;
     let prayerData; // Holds prayer times data for the selected city
@@ -38,6 +39,11 @@ document.addEventListener("DOMContentLoaded", () => {
         { english: "Isha", swedish: "Isha", arabic: "العشاء" }
     ];
 
+    // Function to update header based on selected city
+    function updateHeader(city) {
+        header.textContent = `Bönetider: ${city}`;
+    }
+
     // Fetches prayer times from the JSON file in the DigitalOcean Space for the specified city
     async function fetchPrayerTimes(city) {
         const todayFormatted = getFormattedDate();
@@ -49,13 +55,14 @@ document.addEventListener("DOMContentLoaded", () => {
         // Extract prayer data for the city and display it
         const data = await response.json();
         prayerData = data.data[city];
+        updateHeader(city); // Update header with the selected city
         displayPrayerTimes(prayerData, city);
         startCitySpecificCountdown(prayerData); // Start countdown for next prayer
     }
 
     // Displays prayer times in Swedish and Arabic, formatted for the selected city
     function displayPrayerTimes(timings, city) {
-        prayerTimesDiv.innerHTML = `<h2>Bönetider för ${city}</h2><ul>`;
+        prayerTimesDiv.innerHTML = "<ul>";
         prayerNames.forEach(prayer => {
             const time = timings[prayer.english];
             const prayerBar = document.createElement("div");
@@ -73,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
             prayerBar.appendChild(prayerTime);
             prayerTimesDiv.appendChild(prayerBar);
         });
-        prayerTimesDiv.innerHTML += `</ul>`;
+        prayerTimesDiv.innerHTML += "</ul>";
         displayDate(); // Display the current date in Swedish and Hijri formats
     }
 
@@ -173,10 +180,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // Set default city to Göteborg on load
     citySelect.value = "Göteborg";
     const defaultCity = "Göteborg";
+    updateHeader(defaultCity); // Initialize header with default city
     fetchPrayerTimes(defaultCity);
 
-    // Update prayer times when the selected city changes
+    // Update prayer times and header when the selected city changes
     citySelect.addEventListener("change", () => {
-        fetchPrayerTimes(citySelect.value);
+        const selectedCity = citySelect.value;
+        updateHeader(selectedCity); // Update header to selected city
+        fetchPrayerTimes(selectedCity);
     });
 });
