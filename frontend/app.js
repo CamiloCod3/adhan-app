@@ -1,4 +1,15 @@
 document.addEventListener("DOMContentLoaded", () => {
+
+    // List of prayer names in English, Swedish, and Arabic for display purposes
+    const prayerNames = [
+        { english: "Fajr", swedish: "Fajr", arabic: "الفجر" },
+        { english: "Sunrise", swedish: "Shuruk ☀️", arabic: "شروق الشمس" },
+        { english: "Dhuhr", swedish: "Dhuhr", arabic: "الظهر" },
+        { english: "Asr", swedish: "Asr", arabic: "العصر" },
+        { english: "Maghrib", swedish: "Maghrib", arabic: "المغرب" },
+        { english: "Isha", swedish: "Isha", arabic: "العشاء" }
+    ];
+    
     // Select DOM elements for prayer times, city selection, countdown, and date display
     const citySelect = document.getElementById("city-select");
     const prayerTimesDiv = document.getElementById("prayer-times");
