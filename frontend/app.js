@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Base URL for DigitalOcean Spaces
     const SPACES_BASE_URL = 'https://adhan-data.nyc3.cdn.digitaloceanspaces.com';
 
-    // Helper function to format date as "DD-MM-YYYY"
+    // Helper function to get today's date formatted as "DD-MM-YYYY"
     function getFormattedDate() {
         const today = new Date();
         const day = String(today.getDate()).padStart(2, '0');
@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const year = today.getFullYear();
         return `${day}-${month}-${year}`;
     }
-
+    
     // Mapping of prayer names in Swedish and Arabic
     const prayerNames = [
         { english: "Fajr", swedish: "Fajr", arabic: "الفجر" },
@@ -39,10 +39,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Fetch prayer times from DigitalOcean Spaces
     async function fetchPrayerTimes(city) {
-        const todayFormatted = getFormattedDate();
-        const response = await fetch(`${SPACES_BASE_URL}/prayer_times.json`);
+        const todayFormatted = getFormattedDate();  // Use today's date
+        const response = await fetch(`${SPACES_BASE_URL}/prayer_times_${todayFormatted}.json`);
 
-        if (!response.ok) throw new Error("Kunde inte hämta böntider");
+        if (!response.ok) throw new Error("Failed to fetch prayer times");
 
         const data = await response.json();
         prayerData = data.data[city];
