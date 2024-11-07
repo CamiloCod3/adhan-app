@@ -37,16 +37,14 @@ document.addEventListener("DOMContentLoaded", () => {
             const response = await fetch(`${SPACES_BASE_URL}/prayer_times.json?timestamp=${Date.now()}`);
             if (!response.ok) throw new Error(`Failed to fetch prayer times: ${response.statusText}`);
             const data = await response.json();
-            console.log("Fetched Data:", data); // Debug log
+            console.log("Fetched Data:", data); // Debug log for inspecting the JSON structure
             const currentDate = data.date;
     
-            if (currentDate !== lastUpdateDate) {
-                lastUpdateDate = currentDate;
-                prayerData = data.data[city];
-                updateHeader(city);
-                displayPrayerTimes(prayerData, city);
-                startCitySpecificCountdown(prayerData);
-            }
+            // Always update prayer times for the selected city, even if the date hasn't changed
+            lastUpdateDate = currentDate;
+            prayerData = data.data; // Update with the latest prayer data for all cities
+            displayPrayerTimes(prayerData[city], city); // Display prayer times for selected city
+            startCitySpecificCountdown(prayerData[city]); // Start countdown based on selected city
         } catch (error) {
             console.error("Error fetching prayer times:", error);
             prayerTimesDiv.innerHTML = `<p style="color:red;">Failed to load prayer times. Please try again later.</p>`;
@@ -221,11 +219,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const defaultCity = "Göteborg";
     updateHeader(defaultCity);
     fetchPrayerTimes(defaultCity);
-
+    
+    // Update prayer times and header when the selected city changes
     citySelect.addEventListener("change", () => {
         const selectedCity = citySelect.value;
         updateHeader(selectedCity);
-        fetchPrayerTimes(selectedCity);
+        fetchPrayerTimes(selectedCity); // Fetch new prayer times for the selected city
     });
 
     startPollingAfterMidnight();
