@@ -115,33 +115,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const baselineHijriDate = { day: 5, month: "Jumada I", year: 1446 };
     const baselineGregorianDate = new Date("2024-11-07");
-    
-    // Function to calculate Hijri date based on baseline and adjustment
+
+    // Calculate today's Hijri date based on baseline
     function calculateHijriDateFromBaseline(hijriAdjustment = 0) {
         const today = new Date();
         const daysSinceBaseline = Math.floor((today - baselineGregorianDate) / (1000 * 60 * 60 * 24)) + hijriAdjustment;
-    
+
+        // Set and format Hijri date from baseline
         const hijriDate = new Date(baselineGregorianDate);
-        hijriDate.setDate(hijriDate.getDate() + daysSinceBaseline);
-    
+        hijriDate.setDate(baselineGregorianDate.getDate() + daysSinceBaseline);
+
         const hijriDateObj = new Intl.DateTimeFormat("ar-SA-u-ca-islamic", {
             day: 'numeric', month: 'long', year: 'numeric', numberingSystem: 'latn'
         }).formatToParts(hijriDate);
-    
+
         const hijriDay = parseInt(hijriDateObj.find(part => part.type === "day").value);
         const hijriMonth = hijriDateObj.find(part => part.type === "month").value;
         const hijriYear = hijriDateObj.find(part => part.type === "year").value;
-    
+
         return { day: hijriDay, month: hijriMonth, year: hijriYear };
     }
 
-    // Function to display both Gregorian and Hijri dates, with optional adjustment
+    // Display Hijri and Gregorian dates with adjustment after Maghrib
     function displayDate(hijriAdjustment = 0) {
         const today = new Date();
         const gregorianDate = today.toLocaleDateString("sv-SE", { day: 'numeric', month: 'long', year: 'numeric' });
-    
+
+        // Calculate adjusted Hijri date from baseline
         const hijriDate = calculateHijriDateFromBaseline(hijriAdjustment);
-    
+
+        // Update date display
         dateDiv.innerHTML = `<p>Datum: ${gregorianDate}</p><p>Hijri: ${hijriDate.day} ${hijriDate.month} ${hijriDate.year} هـ</p>`;
     }
 
