@@ -113,39 +113,39 @@ document.addEventListener("DOMContentLoaded", () => {
         displayDate();
     }
 
-    const baselineHijriDate = { day: 5, month: "Jumada I", year: 1446 };
-    const baselineGregorianDate = new Date("2024-11-07");
-
-    // Calculate today's Hijri date based on baseline
-    function calculateHijriDateFromBaseline(hijriAdjustment = 0) {
+    // Fetch Hijri date using the Aladhan API
+    async function getHijriDateFromAPI(hijriAdjustment = 0) {
         const today = new Date();
-        const daysSinceBaseline = Math.floor((today - baselineGregorianDate) / (1000 * 60 * 60 * 24)) + hijriAdjustment;
+        const dateStr = `${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`;
 
-        // Set and format Hijri date from baseline
-        const hijriDate = new Date(baselineGregorianDate);
-        hijriDate.setDate(baselineGregorianDate.getDate() + daysSinceBaseline);
+        try {
+            const response = await fetch(`https://api.aladhan.com/v1/gToH?date=${dateStr}`);
+            const data = await response.json();
 
-        const hijriDateObj = new Intl.DateTimeFormat("ar-SA-u-ca-islamic", {
-            day: 'numeric', month: 'long', year: 'numeric', numberingSystem: 'latn'
-        }).formatToParts(hijriDate);
+            if (data.code === 200) {
+                const hijriDate = data.data.hijri;
+                let hijriDay = parseInt(hijriDate.day) + hijriAdjustment;
+                const hijriMonth = hijriDate.month.en;
+                const hijriYear = hijriDate.year;
 
-        const hijriDay = parseInt(hijriDateObj.find(part => part.type === "day").value);
-        const hijriMonth = hijriDateObj.find(part => part.type === "month").value;
-        const hijriYear = hijriDateObj.find(part => part.type === "year").value;
-
-        return { day: hijriDay, month: hijriMonth, year: hijriYear };
+                return { day: hijriDay, month: hijriMonth, year: hijriYear };
+            } else {
+                console.error("Failed to fetch Hijri date:", data);
+            }
+        } catch (error) {
+            console.error("Error fetching Hijri date:", error);
+        }
     }
 
-    // Display Hijri and Gregorian dates with adjustment after Maghrib
-    function displayDate(hijriAdjustment = 0) {
+    // Display Gregorian and Hijri dates with optional adjustment
+    async function displayDate(hijriAdjustment = 0) {
         const today = new Date();
         const gregorianDate = today.toLocaleDateString("sv-SE", { day: 'numeric', month: 'long', year: 'numeric' });
 
-        // Calculate adjusted Hijri date from baseline
-        const hijriDate = calculateHijriDateFromBaseline(hijriAdjustment);
-
-        // Update date display
-        dateDiv.innerHTML = `<p>Datum: ${gregorianDate}</p><p>Hijri: ${hijriDate.day} ${hijriDate.month} ${hijriDate.year} هـ</p>`;
+        const hijriDate = await getHijriDateFromAPI(hijriAdjustment);
+        if (hijriDate) {
+            dateDiv.innerHTML = `<p>Datum: ${gregorianDate}</p><p>Hijri: ${hijriDate.day} ${hijriDate.month} ${hijriDate.year} هـ</p>`;
+        }
     }
 
     function updateHijriDateAfterMaghrib() {
