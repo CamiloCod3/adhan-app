@@ -76,18 +76,19 @@ document.addEventListener("DOMContentLoaded", () => {
     function startPollingAfterMidnight() {
         const now = new Date();
         const targetTime = new Date(now);
-        targetTime.setHours(0, 16, 0, 0);
-
+        targetTime.setHours(0, 0, 0, 0); // Set to midnight
+    
         if (now > targetTime) {
             targetTime.setDate(targetTime.getDate() + 1);
         }
-
+    
         const timeUntilTarget = targetTime - now;
         setTimeout(() => {
-            startLimitedPolling();
+            displayDate(); // Reset Hijri date display to default at midnight
+            startLimitedPolling(); // Begin limited polling for new data
         }, timeUntilTarget);
     }
-
+    
     // Display prayer times for the selected city
     function displayPrayerTimes(timings, city) {
         prayerTimesDiv.innerHTML = "<ul>";
@@ -117,14 +118,16 @@ document.addEventListener("DOMContentLoaded", () => {
         const today = new Date();
         const gregorianDate = today.toLocaleDateString("sv-SE", { day: 'numeric', month: 'long', year: 'numeric' });
         
+        // Get Hijri date, applying any adjustment if needed
         const hijriDateObj = new Intl.DateTimeFormat("ar-SA-u-ca-islamic", {
             day: 'numeric', month: 'long', year: 'numeric', numberingSystem: 'latn'
         }).formatToParts(today);
-
+    
+        // Apply adjustment after Maghrib if specified
         let hijriDay = parseInt(hijriDateObj.find(part => part.type === "day").value) + hijriAdjustment;
         let hijriMonth = hijriDateObj.find(part => part.type === "month").value;
         let hijriYear = hijriDateObj.find(part => part.type === "year").value;
-
+    
         dateDiv.innerHTML = `<p>Datum: ${gregorianDate}</p><p>Hijri: ${hijriDay} ${hijriMonth} ${hijriYear} هـ</p>`;
     }
 
@@ -219,7 +222,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const defaultCity = "Göteborg";
     updateHeader(defaultCity);
     fetchPrayerTimes(defaultCity);
-    
+
     // Update prayer times and header when the selected city changes
     citySelect.addEventListener("change", () => {
         const selectedCity = citySelect.value;
